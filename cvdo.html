@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVDO - We Make Resumes That Work</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Using Inter font as specified -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for specified colors and shadows */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FFFFFF; /* Pure white background */
+            color: #1F2937; /* Default font color: Dark gray */
+        }
+        .text-dark-gray-custom {
+            color: #1F2937;
+        }
+        .text-black-custom {
+            color: #111827;
+        }
+        /* Updated shadow for a more pronounced "pop" effect on all sides */
+        .shadow-strong-pop {
+            box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.1), 0 6px 12px 0 rgba(0, 0, 0, 0.08); /* Stronger, more even shadow */
+        }
+        .shadow-soft {
+            box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.08), 0 2px 4px 0 rgba(0, 0, 0, 0.04); /* Softer, more even shadow */
+        }
+        .shadow-deeper {
+            box-shadow: 0 12px 25px 0 rgba(0, 0, 0, 0.12), 0 8px 15px 0 rgba(0, 0, 0, 0.1); /* Deeper, more even shadow */
+        }
+        /* Custom hover effect for CTA button */
+        .cta-button-hover:hover {
+            background-color: #333333; /* Slightly lighter black/dark gray on hover */
+        }
+        /* Custom hover effect for service cards */
+        .card-hover:hover {
+            transform: scale(1.02); /* Slight scale */
+            box-shadow: 0 12px 25px 0 rgba(0, 0, 0, 0.15), 0 8px 15px 0 rgba(0, 0, 0, 0.12); /* Even deeper shadow on hover */
+        }
+
+        /* Styles for expandable sections */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out; /* Smooth transition for expand/collapse */
+        }
+        .accordion-content.active {
+            max-height: 500px; /* Adjust as needed for content height */
+            transition: max-height 0.3s ease-in;
+        }
+        .accordion-header {
+            cursor: pointer;
+        }
+        .arrow-icon {
+            transition: transform 0.3s ease;
+        }
+        .arrow-icon.rotated {
+            transform: rotate(90deg);
+        }
+
+        /* Styles for the hover button in Pricing section */
+        .pricing-button-container {
+            opacity: 0; /* Initially invisible */
+            max-height: 0; /* Collapse height */
+            overflow: hidden;
+            transition: opacity 0.3s ease-in-out, max-height 0.3s ease-in-out; /* Smooth transition */
+            margin-top: 0; /* No margin when hidden */
+        }
+        .pricing-button-container.visible {
+            opacity: 1; /* Fully visible */
+            max-height: 100px; /* Enough height for the button */
+            margin-top: 1.5rem; /* Add margin when visible */
+        }
+
+        /* Basic spinner for loading state - no longer strictly needed but kept in case LLM generation is re-added */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #1F2937;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body class="bg-white">
+
+    <!-- Navbar Section -->
+    <nav class="sticky top-0 z-50 bg-white shadow-soft py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <!-- Logo Placeholder (Left) -->
+            <div class="flex-shrink-0">
+                <!-- Replace 'https://placehold.co/120x40/FFFFFF/000000?text=Navbar+Logo' with your actual logo image URL -->
+                <img src="Gemini_Generated_Image_wmima9wmima9wmim.png" alt="CVDO Logo" class="h-10 w-auto rounded">
+            </div>
+            <!-- Navigation Links (Right) -->
+            <div class="hidden md:block">
+                <div class="ml-10 flex items-baseline space-x-8">
+                    <a href="#services" class="text-dark-gray-custom hover:text-black-custom px-3 py-2 rounded-md text-lg font-medium transition duration-300">Services</a>
+                    <a href="#pricing" class="text-dark-gray-custom hover:text-black-custom px-3 py-2 rounded-md text-lg font-medium transition duration-300">Pricing</a>
+                    <a href="#about" class="text-dark-gray-custom hover:text-black-custom px-3 py-2 rounded-md text-lg font-medium transition duration-300">About Us</a>
+                </div>
+            </div>
+            <!-- Mobile Menu Button (Hamburger) -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-dark-gray-custom hover:text-black-custom focus:outline-none focus:ring-2 focus:ring-inset focus:ring-black">
+                    <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (Hidden by default, toggled by JS) -->
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#services" class="text-dark-gray-custom hover:text-black-custom block px-3 py-2 rounded-md text-base font-medium">Services</a>
+                <a href="#pricing" class="text-dark-gray-custom hover:text-black-custom block px-3 py-2 rounded-md text-base font-medium">Pricing</a>
+                <a href="#about" class="text-dark-gray-custom hover:text-black-custom block px-3 py-2 rounded-md text-base font-medium">About Us</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="flex flex-col items-center justify-center min-h-screen text-center px-4 py-16 bg-white">
+        <!-- Logo (centered image) -->
+        <!-- Replace 'https://placehold.co/200x60/FFFFFF/000000?text=Hero+Logo' with your actual logo image URL -->
+        <img src="Gemini_Generated_Image_wmima9wmima9wmim.png" alt="CVDO Logo" class="mb-8 h-20 sm:h-40 max-w-full rounded">
+
+        <!-- Heading -->
+        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-black-custom mb-8 leading-tight">
+            We Make Resumes That Work
+        </h1>
+
+        <!-- "Get Your Resume" CTA Button in Hero Section -->
+        <a href="https://forms.gle/your-google-form-link" target="_blank" rel="noopener noreferrer"
+            class="bg-black text-white px-8 py-4 rounded-full text-xl font-semibold shadow-soft hover:shadow-deeper transition-all duration-300 cta-button-hover flex items-center justify-center">
+            ⚡ Get Your Resume
+        </a>
+        <p class="mt-4 text-sm text-gray-500">Links to an external Google Form</p>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-16 px-4 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-center text-black-custom mb-12">Our Services</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Service Card 1: Entry-Level Resume -->
+                <div class="bg-white rounded-lg p-8 shadow-soft card-hover transition-all duration-300">
+                    <div class="accordion-header flex justify-between items-center pb-4">
+                        <h3 class="text-xl sm:text-2xl font-semibold text-black-custom">Entry-Level Resume</h3>
+                        <svg class="arrow-icon w-6 h-6 text-dark-gray-custom" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                    <p class="text-dark-gray-custom leading-relaxed">
+                        Perfect for students, recent graduates, and those starting their professional journey. We craft a compelling narrative to highlight your potential.
+                    </p>
+                    <div class="accordion-content pt-4 mt-4 border-t border-gray-100">
+                        <ul class="list-disc list-inside text-dark-gray-custom space-y-2">
+                            <li>Ideal for students, freshers, and those entering the job market</li>
+                            <li>Highlights education, projects, and internships</li>
+                            <li>Tailored for ATS (Applicant Tracking Systems)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Service Card 2: Professional Resume -->
+                <div class="bg-white rounded-lg p-8 shadow-soft card-hover transition-all duration-300">
+                    <div class="accordion-header flex justify-between items-center pb-4">
+                        <h3 class="text-xl sm:text-2xl font-semibold text-black-custom">Professional Resume</h3>
+                        <svg class="arrow-icon w-6 h-6 text-dark-gray-custom" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                    <p class="text-dark-gray-custom leading-relaxed">
+                        Tailored for experienced professionals looking to advance their careers or transition to new roles. Showcases your achievements and expertise.
+                    </p>
+                    <div class="accordion-content pt-4 mt-4 border-t border-gray-100">
+                        <ul class="list-disc list-inside text-dark-gray-custom space-y-2">
+                            <li>Perfect for experienced candidates</li>
+                            <li>Emphasizes achievements, leadership, and domain expertise</li>
+                            <li>Designed with recruiter-friendly formatting</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Service Card 3: Cover Letter Design -->
+                <div class="bg-white rounded-lg p-8 shadow-soft card-hover transition-all duration-300">
+                    <div class="accordion-header flex justify-between items-center pb-4">
+                        <h3 class="text-xl sm:text-2xl font-semibold text-black-custom">Cover Letter Design</h3>
+                        <svg class="arrow-icon w-6 h-6 text-dark-gray-custom" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                    <p class="text-dark-gray-custom leading-relaxed">
+                        A personalized cover letter that complements your resume, addressing specific job requirements and demonstrating your enthusiasm.
+                    </p>
+                    <div class="accordion-content pt-4 mt-4 border-t border-gray-100">
+                        <ul class="list-disc list-inside text-dark-gray-custom space-y-2">
+                            <li>Personalized for the target job or industry</li>
+                            <li>Aligns tone and message with the resume</li>
+                            <li>Optionally highlights key career stories</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-16 px-4 bg-white">
+        <div class="max-w-xl mx-auto bg-white rounded-lg p-8 sm:p-10 shadow-soft text-center" onmouseenter="showPricingButton()" onmouseleave="hidePricingButton()">
+            <!-- Updated Pricing Section Title -->
+            <h2 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-black-custom mb-6">Our Pricing</h2>
+            <p class="text-dark-gray-custom mb-8 leading-relaxed">
+                Our pricing is tailored based on your profile, experience, and career goals. We offer one simple plan starting at ₹199. Final pricing is shared after connecting with you personally.
+            </p>
+            <ul class="text-left text-dark-gray-custom space-y-4">
+                <li class="flex items-start">
+                    <span class="text-green-500 mr-2 text-2xl">✅</span>
+                    <p class="text-lg">Fully personalized resume & cover letter</p>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-red-500 mr-2 text-2xl">🔥</span>
+                    <p class="text-lg">Starts from ₹199 only</p>
+                </li>
+                <li class="flex items-start">
+                    <span class="mr-2 text-2xl">🖨️</span>
+                    <p class="text-lg">Print-out delivery available</p>
+                </li>
+                <li class="flex items-start">
+                    <span class="mr-2 text-2xl">🚚</span>
+                    <p class="text-lg">Same-day Print-out delivery for Tier 1 cities</p>
+                </li>
+            </ul>
+
+            <!-- "Get Your Resume" Button in Pricing Section -->
+            <div id="pricing-cta-button-container" class="pricing-button-container">
+                <a href="https://forms.gle/your-google-form-link" target="_blank" rel="noopener noreferrer"
+                    class="inline-block bg-black text-white px-8 py-4 rounded-full text-xl font-semibold shadow-soft hover:shadow-deeper transition-all duration-300 cta-button-hover flex items-center justify-center">
+                    ⚡ Get Your Resume
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- How We Contact Section -->
+    <section id="how-we-contact" class="py-16 px-4 bg-white">
+        <div class="max-w-3xl mx-auto text-center bg-white rounded-lg p-8 shadow-soft">
+            <h2 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-black-custom mb-8">📞 How We Contact?</h2>
+            <p class="text-dark-gray-custom mb-8 leading-relaxed text-lg">
+                Once you fill out the form and answer all the questions, we’ll get in touch with you via email and WhatsApp.
+            </p>
+            <ul class="text-left text-dark-gray-custom space-y-4">
+                <li class="flex items-start">
+                    <span class="mr-2 text-2xl">⏱️</span>
+                    <p class="text-lg">If it's during working hours, you'll hear from us within 15 minutes</p>
+                </li>
+                <li class="flex items-start">
+                    <span class="mr-2 text-2xl">🌙</span>
+                    <p class="text-lg">If it’s between 1 a.m. and 6 a.m., we’ll reply right after that time</p>
+                </li>
+                <li class="flex items-start">
+                    <span class="mr-2 text-2xl">🎁</span>
+                    <p class="text-lg">We announce offers and deals on our social media platforms — you can claim them when we reach out to you!</p>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- About Section (Moved below How We Contact) -->
+    <section id="about" class="py-16 px-4 bg-white">
+        <div class="max-w-3xl mx-auto text-center bg-white rounded-lg p-8 shadow-deeper">
+            <h2 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-black-custom mb-8">About CVDO</h2>
+            <p class="text-gray-700 text-lg leading-relaxed">
+                At CVDO, we are a dedicated team committed to ensuring the right person gets the right job. We achieve this by building tailored resumes that highlight an individual's unique skills, empowering them to succeed in their career journey. We help people unlock their full potential by providing professional and personalized assistance.
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="bg-white py-8 px-4 border-t border-gray-100 shadow-strong-pop">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center text-dark-gray-custom text-sm">
+            <!-- Left: Copyright -->
+            <div class="mb-4 sm:mb-0">
+                &copy; 2025 CVDO. All rights reserved.
+            </div>
+            <!-- Right: Policy Links -->
+            <div class="flex space-x-4">
+                <a href="#" class="hover:underline">Privacy Policy</a>
+                <span class="text-gray-400">|</span>
+                <a href="#" class="hover:underline">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Define global functions for pricing button hover
+        const pricingCtaButtonContainer = document.getElementById('pricing-cta-button-container');
+
+        function showPricingButton() {
+            if (pricingCtaButtonContainer) {
+                pricingCtaButtonContainer.classList.add('visible');
+            }
+        }
+
+        function hidePricingButton() {
+            if (pricingCtaButtonContainer) {
+                pricingCtaButtonContainer.classList.remove('visible');
+            }
+        }
+
+        // JavaScript for mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function () {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function () {
+                    mobileMenu.classList.toggle('hidden');
+                });
+
+                // Close mobile menu when a link is clicked (for smooth scrolling)
+                mobileMenu.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenu.classList.add('hidden');
+                    });
+                });
+            }
+
+            // JavaScript for expandable service cards (accordion functionality)
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = header.nextElementSibling.nextElementSibling; // Get the accordion-content div
+                    const arrowIcon = header.querySelector('.arrow-icon');
+
+                    if (content) {
+                        content.classList.toggle('active');
+                        arrowIcon.classList.toggle('rotated');
+                    }
+                });
+            });
+
+            // Removed Gemini API Integration logic for generating ideas, as the buttons are removed.
+        });
+    </script>
+</body>
+</html>
